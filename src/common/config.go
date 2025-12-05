@@ -1,5 +1,11 @@
 package common
 
+import (
+	"github.com/pelletier/go-toml/v2"
+	"log"
+	"os"
+)
+
 type Config struct {
 	ListenPort            int    `toml:"port"`
 	SqsMaximumMessageSize int    `toml:"sqsMaximumMessageSize"`
@@ -22,7 +28,7 @@ func ProcessConfig() *Config {
 		Compression:           "gzip",
 		QueueName:             "queue_b1946ac92",
 	}
-	b, err := os.ReadFile("config.toml")
+	b, err := os.ReadFile("../config.toml")
 	if err != nil {
 		log.Fatalf("Failed to read config.toml: %v", err)
 	}
