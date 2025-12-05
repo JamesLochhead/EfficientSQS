@@ -28,7 +28,8 @@ or AWS Greengrass, do this on any compute.
 TODO
 
 - Polling time.
-- Draining environment variable.
+- Draining.
+- Small messages and GZip. https://webmasters.stackexchange.com/questions/31750/what-is-recommended-minimum-object-size-for-gzip-performance-benefits
 
 ## Benefits
 
