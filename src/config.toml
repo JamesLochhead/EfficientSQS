@@ -5,3 +5,4 @@ sqsMaximumMessageSize = 1048576
 routePattern = "/message"
 mode = "debug"
 compression = "none"
+sqsQueueName = "mytestqueue2"

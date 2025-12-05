@@ -39,12 +39,12 @@ func main() {
 			if err := gz.Close(); err != nil {
 				log.Println("Failed to close buffer:", err)
 			}
-			_, err = rdb.LPush(ctx, setConfig.QueueName, buffer.Bytes()).Result()
+			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, buffer.Bytes()).Result()
 			if err != nil {
 				log.Println("Failed to store message:", err) // TODO send non-200
 			}
 		} else {
-			_, err = rdb.LPush(ctx, setConfig.QueueName, data).Result()
+			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, data).Result()
 			if err != nil {
 				log.Println("Failed to store message:", err) // TODO send non-200
 			}

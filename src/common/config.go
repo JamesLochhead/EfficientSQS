@@ -14,7 +14,8 @@ type Config struct {
 	Mode                  string `toml:"mode"`
 	RoutePattern          string `toml:"routePattern"`
 	Compression           string `toml:"compression"`
-	QueueName             string `toml:"queueName"`
+	RedisQueueName        string `toml:"redisQueueName"`
+	SqsQueueName          string `toml:"sqsQueueName"`
 }
 
 func ProcessConfig() *Config {
@@ -26,7 +27,7 @@ func ProcessConfig() *Config {
 		Mode:                  "release",
 		RoutePattern:          "/sqs",
 		Compression:           "gzip",
-		QueueName:             "queue_b1946ac92",
+		RedisQueueName:        "queue_b1946ac92",
 	}
 	b, err := os.ReadFile("../config.toml")
 	if err != nil {
@@ -44,6 +45,9 @@ func ProcessConfig() *Config {
 	}
 	if setConfig.Mode != "debug" && setConfig.Mode != "release" {
 		log.Fatalf("config: mode must be 'debug' or 'release'.")
+	}
+	if setConfig.SqsQueueName == "" {
+		log.Fatalf("config: sqsQueueName must be set.")
 	}
 	return &setConfig
 }
