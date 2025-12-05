@@ -1,3 +1,7 @@
+```
+NOTE: This is a WIP project that is not yet released.
+```
+
 # Go SQS Batch and Bin-Pack Service
 
 A Go service to batch and, compress, and bin-pack messages in memory and then
@@ -15,10 +19,9 @@ If your code already sends large chunks (> 64KB) of data to SQS then you
 will not benefit overly much from this service and it may not be a good idea to
 implement it.
 
-The service can be run anywhere that can assume an AWS IAM role on. That's easiest
-
- ECS Fargate,
-EKS, and EC2. 
+The service can be run anywhere that can assume an AWS IAM role on. That's
+easiest on AWS services but you could, in theory, with AWS IAM Roles Anywhere,
+or AWS Greengrass, do this on any compute.
 
 ## Configuration
 
