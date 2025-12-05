@@ -16,6 +16,7 @@ type Config struct {
 	Compression           string `toml:"compression"`
 	RedisQueueName        string `toml:"redisQueueName"`
 	SqsQueueName          string `toml:"sqsQueueName"`
+	SeparatingCharacters  string `toml:"separatingCharacters"`
 }
 
 func ProcessConfig() *Config {
@@ -26,7 +27,7 @@ func ProcessConfig() *Config {
 		PollingMs:             100,
 		Mode:                  "release",
 		RoutePattern:          "/sqs",
-		Compression:           "gzip",
+		Compression:           "none",
 		RedisQueueName:        "queue_b1946ac92",
 	}
 	b, err := os.ReadFile("../config.toml")
@@ -48,6 +49,9 @@ func ProcessConfig() *Config {
 	}
 	if setConfig.SqsQueueName == "" {
 		log.Fatalf("config: sqsQueueName must be set.")
+	}
+	if setConfig.SeparatingCharacters == "" {
+		log.Fatalf("config: separatingCharacters must be set.")
 	}
 	return &setConfig
 }
