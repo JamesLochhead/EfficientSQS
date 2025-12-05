@@ -1,6 +1,6 @@
 precommit:
 	go fmt .
-	#go mod tidy
+	go mod tidy
 	golangci-lint run
 insecure-dev-valkey:
 	docker build -t insecure-dev-valkey:latest ./valkey_dev

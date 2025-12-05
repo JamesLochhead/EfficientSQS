@@ -5,6 +5,7 @@ go 1.24.3
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/redis/go-redis/v9 v9.17.2
 )
 
 require (
@@ -28,7 +29,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
-	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect
