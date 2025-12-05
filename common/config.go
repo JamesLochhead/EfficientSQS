@@ -9,7 +9,7 @@ type Config struct {
 	QueueName             string `toml:"queueName"`
 }
 
-func processConfig() *Config {
+func ProcessConfig() *Config {
 	setConfig := Config{
 		ListenPort:            8080,
 		SqsMinimumMessageSize: 1,
