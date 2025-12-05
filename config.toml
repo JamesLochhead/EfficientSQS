@@ -1,0 +1,7 @@
+port = 8081
+pollingMs = 100
+sqsMinimumMessageSize = 1
+sqsMaximumMessageSize = 1048576
+routePattern = "/message"
+mode = "debug"
+compression = "none"
