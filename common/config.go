@@ -1,3 +1,5 @@
+package common
+
 type Config struct {
 	ListenPort            int    `toml:"port"`
 	SqsMaximumMessageSize int    `toml:"sqsMaximumMessageSize"`
