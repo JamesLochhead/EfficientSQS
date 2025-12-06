@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/redis/go-redis/v9"
 	"log"
+	"sync"
 )
 
 // checkSqsExists checks whether an SQS queue with the given name exists by
@@ -47,7 +48,7 @@ func packBins(
 				// normal "empty queue"
 				return bins, nil
 			}
-			return bins, fmt.Errorf("redis pop error:", err)
+			return bins, fmt.Errorf("redis pop error: %v", err)
 		}
 
 		itemLen := len(item)
@@ -100,6 +101,10 @@ func chunkBins(bins map[int]string) []map[int]string {
 	return chunks
 }
 
+func worker(id int) {
+
+}
+
 func main() {
 	// TODO on Sigterm drain Redis
 	ctx := context.Background()
@@ -121,6 +126,12 @@ func main() {
 		log.Println("Failed to pop from Redis:", err)
 	}
 	chunks := chunkBins(bins)
-	log.Println(chunks)
+	var wg sync.WaitGroup
+	for i := range chunks {
+		wg.Go(func() {
+			worker(i)
+		})
 
+	}
+	wg.Wait()
 }

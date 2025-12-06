@@ -50,6 +50,8 @@ func main() {
 			}
 		}
 		// TODO if message is too large send appropriate rejection
+		// TODO if message is too small send appropriate rejection
+		// TODO search message for separating characters and reject
 	})
 	if err := router.Run(strings.Join([]string{":", strconv.Itoa(setConfig.ListenPort)}, "")); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
