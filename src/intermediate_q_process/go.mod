@@ -3,7 +3,7 @@ module github.com/JamesLochhead/EfficientSQS/src/intermediate_q_process
 go 1.25.4
 
 require (
-	github.com/JamesLochhead/EfficientSQS v0.0.0-20251205211150-919c6bec0ef8
+	github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941
 	github.com/gin-gonic/gin v1.11.0
 	github.com/redis/go-redis/v9 v9.17.2
 )
