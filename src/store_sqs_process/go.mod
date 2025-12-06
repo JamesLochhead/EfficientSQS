@@ -3,7 +3,7 @@ module github.com/JamesLochhead/EfficientSQS/src/store_sqs_process
 go 1.25.4
 
 require (
-	github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941
+	github.com/JamesLochhead/EfficientSQS v0.1.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.42.18
 	github.com/redis/go-redis/v9 v9.17.2

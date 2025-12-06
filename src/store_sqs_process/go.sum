@@ -1,5 +1,7 @@
 github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941 h1:6uJc5bsxp7xDyYFVtJReynOO9Nz2lfrrNGpwZPeaa9M=
 github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
+github.com/JamesLochhead/EfficientSQS v0.1.0 h1:zBKxN4051u6S1iQuy/dOc0qlUEYlKaDK7217T0IrOvs=
+github.com/JamesLochhead/EfficientSQS v0.1.0/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
 github.com/aws/aws-sdk-go-v2 v1.40.1 h1:difXb4maDZkRH0x//Qkwcfpdg1XQVXEAEs2DdXldFFc=
 github.com/aws/aws-sdk-go-v2 v1.40.1/go.mod h1:MayyLB8y+buD9hZqkCW3kX1AKq07Y5pXxtgB+rRFhz0=
 github.com/aws/aws-sdk-go-v2/config v1.32.3 h1:cpz7H2uMNTDa0h/5CYL5dLUEzPSLo2g0NkbxTRJtSSU=
