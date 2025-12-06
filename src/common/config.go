@@ -17,6 +17,8 @@ type Config struct {
 	RedisQueueName        string `toml:"redisQueueName"`
 	SqsQueueName          string `toml:"sqsQueueName"`
 	SeparatingCharacters  string `toml:"separatingCharacters"`
+	RedisHost             string `toml:"redisHost"`
+	RedisPort             int    `toml:"redisPort"`
 }
 
 func ProcessConfig() *Config {
@@ -29,8 +31,10 @@ func ProcessConfig() *Config {
 		RoutePattern:          "/sqs",
 		Compression:           "none",
 		RedisQueueName:        "queue_b1946ac92",
+		RedisHost:             "localhost",
+		RedisPort:             6379,
 	}
-	b, err := os.ReadFile("../config.toml")
+	b, err := os.ReadFile("../efficient_sqs_config.toml")
 	if err != nil {
 		log.Fatalf("Failed to read config.toml: %v", err)
 	}
