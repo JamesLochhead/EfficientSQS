@@ -36,7 +36,7 @@ func ProcessConfig() *Config {
 	}
 	b, err := os.ReadFile("../efficient_sqs_config.toml")
 	if err != nil {
-		log.Fatalf("Failed to read config.toml: %v", err)
+		log.Fatalf("Failed to read efficient_sqs_config.toml: %v", err)
 	}
 	err = toml.Unmarshal(b, &setConfig)
 	if err != nil {
