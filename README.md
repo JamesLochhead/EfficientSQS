@@ -4,15 +4,14 @@ NOTE: This is a WIP project that is not yet released.
 
 # Efficient SQS
 
-A Go service to batch, (optionally) compress, and bin-pack messages in memory
-and then send them to Amazon SQS. The service is intended to reduce costs
-associated with API calls and enable batching of messages for efficient
-operation of compute/databases.
+A Go service to batch and bin-pack messages in-memory and then send them to
+Amazon SQS. The service is intended to reduce costs associated with API calls
+and enable batching of messages for efficient operation of compute/databases.
 
-Each message is batched, compressed, and bin-packed into a single large SQS
-message that is up to **1 MiB**. If, after these processes are completed,
-multiple messages are present the [SendMessageBatch
-API method](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessageBatch.html)
+Each message is batched and bin-packed into a single large SQS message that is
+up to **1 MiB**. If, after these processes are completed, multiple messages are
+present the
+[SendMessageBatch API method](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessageBatch.html)
 is used to further reduce AWS API costs.
 
 If your code already sends large chunks (> 64KB) of data to SQS then you
@@ -51,15 +50,6 @@ mode
 
 `"release"` or `"debug"`. Set the application, including Gin, to release or
 debug mode.
-
-```
-compression
-```
-
-`"gzip"` or `"none"`. Compress messages before they are sent to Redis. You
-probably need to measure how big your average message is only use GZip if it is
-150 bytes or more; otherwise GZip can actually make your messages larger. Source:
-`https://webmasters.stackexchange.com/questions/31750/what-is-recommended-minimum-object-size-for-gzip-performance-benefits`.
 
 ```
 sqsQueueName

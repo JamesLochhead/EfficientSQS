@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
 	"github.com/JamesLochhead/EfficientSQS/src/common"
 	"github.com/gin-gonic/gin"
@@ -32,24 +30,9 @@ func main() {
 		if err != nil {
 			logger.Error("Failed to get message JSON", "error", err) // TODO send non-200
 		}
-		if setConfig.Compression == "gzip" {
-			var buffer bytes.Buffer
-			gz := gzip.NewWriter(&buffer)
-			if _, err := gz.Write([]byte(data)); err != nil {
-				logger.Error("Failed to write to buffer", "error", err)
-			}
-			if err := gz.Close(); err != nil {
-				logger.Error("Failed to close buffer", "error", err)
-			}
-			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, buffer.Bytes()).Result()
-			if err != nil {
-				logger.Error("Failed to store message", "error", err) // TODO send non-200
-			}
-		} else {
-			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, data).Result()
-			if err != nil {
-				logger.Error("Failed to store message", "error", err) // TODO send non-200
-			}
+		_, err = rdb.LPush(ctx, setConfig.RedisQueueName, data).Result()
+		if err != nil {
+			logger.Error("Failed to store message", "error", err) // TODO send non-200
 		}
 		// TODO if message is too large send appropriate rejection
 		// TODO if message is too small send appropriate rejection
