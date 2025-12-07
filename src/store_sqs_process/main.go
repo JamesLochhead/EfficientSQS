@@ -14,6 +14,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 )
 
 // checkSqsExists checks whether an SQS queue with the given name exists by
@@ -164,27 +165,30 @@ func main() {
 	}
 	sqsClient := sqs.NewFromConfig(sdkConfig)
 	checkSqsExists(sqsClient, ctx, setConfig.SqsQueueName, logger)
-	bins, err := packBins(ctx, rdb, setConfig)
-	if err != nil {
-		logger.Error("Failed to pop from Redis", "error", err)
+	for {
+		time.Sleep(time.Duration(setConfig.PollingMs) * time.Millisecond)
+		bins, err := packBins(ctx, rdb, setConfig)
+		if err != nil {
+			logger.Error("Failed to pop from Redis", "error", err)
+		}
+		chunks := chunkBins(bins)
+
+		var wg sync.WaitGroup
+		for _, batch := range chunks {
+			batchCopy := batch // avoid loop variable capture
+
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				err := sendBatch(ctx, sqsClient, setConfig.SqsQueueName, batchCopy, logger)
+				if err != nil {
+					logger.Error("Batch FAILED", "error", err)
+				} else {
+					logger.Info("Batch sent successfully")
+				}
+			}()
+		}
+
+		wg.Wait()
 	}
-	chunks := chunkBins(bins)
-
-	var wg sync.WaitGroup
-	for _, batch := range chunks {
-		batchCopy := batch // avoid loop variable capture
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			err := sendBatch(ctx, sqsClient, setConfig.SqsQueueName, batchCopy, logger)
-			if err != nil {
-				logger.Error("Batch FAILED", "error", err)
-			} else {
-				logger.Info("Batch sent successfully")
-			}
-		}()
-	}
-
-	wg.Wait()
 }
