@@ -88,14 +88,34 @@ batching/bin-packing worthwhile.
 Conversely, if `pollingMs` is too high, user experience might be impacted, you
 will lose more data during a disaster, and your compute will need more memory.
 
-TODO separating character
+`separatingCharacters` is used to separate your messages as they are bin-packed
+into a single message. Messages that initially contain the separating characters
+are rejected; therefore it is critical to set them to characters that your
+messages should ideally **never** container.
 
-TODO consuming from SQS
+When consuming messages from the SQS queue, you will need to search for
+separating characters to unpack each message.
 
 ### IAM role
 
 The application assumes you have an appropriate IAM role with permissions to
-send messages to SQS and AWS region set. TODO: improve
+send messages to SQS and AWS region set.
+
+Here's a minimal IAM policy document:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SqsSendMessage",
+      "Effect": "Allow",
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:AWS_REGION:AWS_ACCOUNT:QUEUE_NAME"
+    }
+  ]
+}
+```
 
 ## Benefits
 
