@@ -10,6 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -111,13 +112,13 @@ func main() {
 	// TODO on Sigterm drain Redis
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	ctx := context.Background()
+	setConfig := common.ProcessConfig(logger)
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // TODO support not using localhost and a different port
-		Password: "",               // TODO support password? maybe? secrets manager?
+		Addr:     setConfig.RedisHost + ":" + strconv.Itoa(setConfig.RedisPort),
+		Password: "", // TODO support password? maybe? secrets manager?
 		DB:       0,
 		Protocol: 2,
 	})
-	setConfig := common.ProcessConfig(logger)
 	sdkConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		logger.Error("Failed to setup AWS client", "error", err)
