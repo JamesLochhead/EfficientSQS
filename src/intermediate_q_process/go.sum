@@ -2,6 +2,10 @@ github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941 h1:6uJc
 github.com/JamesLochhead/EfficientSQS v0.0.0-20251206000046-97c9098b6941/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
 github.com/JamesLochhead/EfficientSQS v0.1.0 h1:zBKxN4051u6S1iQuy/dOc0qlUEYlKaDK7217T0IrOvs=
 github.com/JamesLochhead/EfficientSQS v0.1.0/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
+github.com/JamesLochhead/EfficientSQS v0.2.0 h1:AmDZC/pBPitHaXHEK5898lLC6CQ0xQ+lKvHK0p+B4e4=
+github.com/JamesLochhead/EfficientSQS v0.2.0/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
+github.com/JamesLochhead/EfficientSQS v0.2.1 h1:hQzpEchWNKTddu1sGXljPZObzMzrhfXFHgp8WiDKBYc=
+github.com/JamesLochhead/EfficientSQS v0.2.1/go.mod h1:tUBWdXPpY7f5uA1tQCsrGBOqilman9fISTKz5INYSHM=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=
