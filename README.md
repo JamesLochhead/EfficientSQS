@@ -2,12 +2,12 @@
 NOTE: This is a WIP project that is not yet released.
 ```
 
-# Go SQS Batch and Bin-Pack Service
+# Efficient SQS
 
-A Go service to batch and, compress, and bin-pack messages in memory and then
-send them to Amazon SQS. The service is intended to reduce costs associated
-with API calls and enable batching of messages for efficient operation of
-compute/databases.
+A Go service to batch, (optionally) compress, and bin-pack messages in memory
+and then send them to Amazon SQS. The service is intended to reduce costs
+associated with API calls and enable batching of messages for efficient
+operation of compute/databases.
 
 Each message is batched, compressed, and bin-packed into a single large SQS
 message that is up to **1 MiB**. If, after these processes are completed,
@@ -16,20 +16,92 @@ API method](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReferenc
 is used to further reduce AWS API costs.
 
 If your code already sends large chunks (> 64KB) of data to SQS then you
-will not benefit overly much from this service and it may not be a good idea to
-implement it.
+will not benefit overly much from this service from a pure cost reduction
+perspective.
 
 The service can be run anywhere that can assume an AWS IAM role on. That's
 easiest on AWS services but you could, in theory, with AWS IAM Roles Anywhere,
 or AWS Greengrass, do this on any compute.
 
+Does not care about order, so this is not suitable for FIFO queues.
+
+Additionally, inherently standard SQS queues output a small number of duplicate
+messages; your code must be able to deal with this.
+
 ## Configuration
 
-TODO
+The application can be configured by a single `efficient_sqs_config.toml` that
+is used by both processes. All keys are top-level.
 
-- Polling time.
-- Draining.
-- Small messages and GZip. https://webmasters.stackexchange.com/questions/31750/what-is-recommended-minimum-object-size-for-gzip-performance-benefits
+```
+port
+```
+
+The port that the Gin web server should listen on.
+
+```
+pollingMs
+```
+
+How frequently the second process should poll the Redis queue in milliseconds.
+
+```
+mode
+```
+
+`"release"` or `"debug"`. Set the application, including Gin, to release or
+debug mode.
+
+```
+compression
+```
+
+`"gzip"` or `"none"`. Compress messages before they are sent to Redis. You
+probably need to measure how big your average message is only use GZip if it is
+150 bytes or more; otherwise GZip can actually make your messages larger. Source:
+`https://webmasters.stackexchange.com/questions/31750/what-is-recommended-minimum-object-size-for-gzip-performance-benefits`.
+
+```
+sqsQueueName
+```
+
+The name of the SQS queue to push messages to.
+
+```
+redisHost
+```
+
+The host for Redis. Not required unless you run Redis on a different host.
+Defaults to `localhost`.
+
+```
+redisPort
+```
+
+The port for Redis. Not required unless you run Redis on a different port.
+Defaults to `6379`.
+
+```
+redisQueueName
+```
+
+The Redis queue name to use. Not required unless you want to use a different
+queue name. Defaults to `queue_b1946ac92`.
+
+### Critical
+
+It is critical to tune `pollingMs` for your application.
+
+If `pollingMs` too low, then you won't collect enough messages to make the
+batching/bin-packing worthwhile.
+
+Conversely, if `pollingMs` is too high, user experience might be impacted, you
+will lose more data during a disaster, and your compute will need more memory.
+
+### IAM role
+
+The application assumes you have an appropriate IAM role with permissions to
+send messages to SQS and AWS region set. TODO: improve
 
 ## Benefits
 
@@ -99,3 +171,11 @@ associated with overly utilized databases, than it is about saving SQS costs.
   to sending them to this service. Alternatively, you can fork this code and
   write that code yourself.
 - Use firewalls to restrict access to this service.
+
+## Architecture
+
+- There are three processes that independently.
+- A web server process (using Gin) put requests into a Redis queue.
+- Redis running as a standalone process (non-HA).
+- A polling process that pops items from the Redis queue, bin-packs, batches
+  them, and then sends them to SQS.
