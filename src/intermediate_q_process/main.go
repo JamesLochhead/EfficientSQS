@@ -25,18 +25,38 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
-	router.POST("/sqs", func(c *gin.Context) { // TODO pattern
+	router.POST(setConfig.RoutePattern, func(c *gin.Context) { // TODO pattern
 		data, err := c.GetRawData()
 		if err != nil {
-			logger.Error("Failed to get message JSON", "error", err) // TODO send non-200
+			logger.Error("Failed to get message JSON", "error", err)
+			c.AbortWithStatusJSON(400, gin.H{
+				"error": "invalid request body",
+			})
+
+		}
+		if len(data) > setConfig.SqsMaximumMessageSize {
+			c.JSON(413, gin.H{
+				"error": "message too large; limit is 1MB",
+			})
+			return
+		}
+		if len(data) < setConfig.SqsMinimumMessageSize {
+			c.JSON(400, gin.H{
+				"error": "message too small",
+			})
+			return
+		}
+		if strings.Contains(string(data), setConfig.SeparatingCharacters) {
+			c.JSON(400, gin.H{"error": "message contains invalid sequence"})
+			return
 		}
 		_, err = rdb.LPush(ctx, setConfig.RedisQueueName, data).Result()
 		if err != nil {
-			logger.Error("Failed to store message", "error", err) // TODO send non-200
+			logger.Error("Failed to store message", "error", err)
+			c.AbortWithStatusJSON(500, gin.H{
+				"error": "unable to store the message in Redis",
+			})
 		}
-		// TODO if message is too large send appropriate rejection
-		// TODO if message is too small send appropriate rejection
-		// TODO search message for separating characters and reject
 	})
 	if err := router.Run(strings.Join([]string{":", strconv.Itoa(setConfig.ListenPort)}, "")); err != nil {
 		logger.Error("Failed to run server", "error", err)
