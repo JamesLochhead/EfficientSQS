@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/JamesLochhead/EfficientSQS/src/common"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	sqstypes "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"os"
@@ -104,8 +106,44 @@ func chunkBins(bins map[int]string) []map[int]string {
 	return chunks
 }
 
-func worker(id int) {
+// sendBatch sends a single bin group (up to 10 bins) to SQS as a SendMessageBatch call.
+// No manual retries — AWS SDK handles retries automatically.
+func sendBatch(
+	ctx context.Context,
+	client *sqs.Client,
+	queueURL string,
+	batch map[int]string,
+	logger *slog.Logger,
+) error {
 
+	entries := make([]sqstypes.SendMessageBatchRequestEntry, 0, len(batch))
+
+	for k, v := range batch {
+		entries = append(entries, sqstypes.SendMessageBatchRequestEntry{
+			Id:          aws.String(fmt.Sprintf("bin-%d", k)),
+			MessageBody: aws.String(v),
+		})
+	}
+
+	input := &sqs.SendMessageBatchInput{
+		QueueUrl: aws.String(queueURL),
+		Entries:  entries,
+	}
+
+	resp, err := client.SendMessageBatch(ctx, input)
+	if err != nil {
+		return fmt.Errorf("batch send failed: %w", err)
+	}
+
+	// SQS does NOT retry partial failures — only retry logic is SDK HTTP-level.
+	if len(resp.Failed) > 0 {
+		for _, f := range resp.Failed {
+			logger.Error("Partial batch failure", "id", *f.Id, "msg", *f.Message)
+		}
+		return fmt.Errorf("batch contains %d failed messages", len(resp.Failed))
+	}
+
+	return nil
 }
 
 func main() {
@@ -131,12 +169,22 @@ func main() {
 		logger.Error("Failed to pop from Redis", "error", err)
 	}
 	chunks := chunkBins(bins)
-	var wg sync.WaitGroup
-	for i := range chunks {
-		wg.Go(func() {
-			worker(i)
-		})
 
+	var wg sync.WaitGroup
+	for _, batch := range chunks {
+		batchCopy := batch // avoid loop variable capture
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := sendBatch(ctx, sqsClient, setConfig.SqsQueueName, batchCopy, logger)
+			if err != nil {
+				logger.Error("Batch FAILED", "error", err)
+			} else {
+				logger.Info("Batch sent successfully")
+			}
+		}()
 	}
+
 	wg.Wait()
 }

@@ -98,6 +98,10 @@ batching/bin-packing worthwhile.
 Conversely, if `pollingMs` is too high, user experience might be impacted, you
 will lose more data during a disaster, and your compute will need more memory.
 
+TODO separating character
+
+TODO consuming from SQS
+
 ### IAM role
 
 The application assumes you have an appropriate IAM role with permissions to
