@@ -14,8 +14,8 @@ present the
 [SendMessageBatch API method](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessageBatch.html)
 is used to further reduce AWS API costs.
 
-If your code already sends large chunks (> 64KB) of data to SQS then you
-will not benefit overly much from this service from a pure cost reduction
+If your code already sends large chunks (> 64KB) of data to SQS then you will
+not benefit overly much from this service from a purely SQS cost reduction
 perspective.
 
 The service can be run anywhere that can assume an AWS IAM role on. That's
@@ -193,3 +193,16 @@ associated with overly utilized databases, than it is about saving SQS costs.
 - Redis running as a standalone process (non-HA).
 - A polling process that pops items from the Redis queue, bin-packs, batches
   them, and then sends them to SQS.
+
+## Production
+
+In production, I would suggest running this as a single pod or ECS task.
+
+Each pod would contain a container each for Redis, `intermediate_q_process`,
+and `store_sqs_process`.
+
+You might add a fourth container into the mix, built internally, to validate
+and auth requests before they are sent to `intermediate_q_process`, or
+you might run everything behind an API Gateway.
+
+Alternatively, you could fork this repository and add validation/auth.
