@@ -21,7 +21,7 @@ type Config struct {
 	RedisPort             int    `toml:"redisPort"`
 }
 
-func ProcessConfig(logger *log/slog.Logger) *Config {
+func ProcessConfig(logger *slog.Logger) *Config {
 	setConfig := Config{
 		ListenPort:            8080,
 		SqsMinimumMessageSize: 1,
