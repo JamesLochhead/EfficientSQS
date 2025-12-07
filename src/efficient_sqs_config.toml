@@ -1,8 +1,8 @@
 port = 8081
-pollingMs = 100
+pollingMs = 10000
 sqsMinimumMessageSize = 1
 sqsMaximumMessageSize = 1048576
-routePattern = "/message"
+routePattern = "/efficient-sqs"
 mode = "release"
 sqsQueueName = "mytestqueue2"
 separatingCharacters = "|%"

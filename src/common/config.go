@@ -28,7 +28,7 @@ func ProcessConfig(logger *slog.Logger) *Config {
 		SqsMaximumMessageSize: 1048576,
 		PollingMs:             100,
 		Mode:                  "release",
-		RoutePattern:          "/sqs",
+		RoutePattern:          "/efficient-sqs",
 		Compression:           "none",
 		RedisQueueName:        "queue_b1946ac92",
 		RedisHost:             "localhost",
