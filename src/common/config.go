@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/pelletier/go-toml/v2"
-	"log"
+	"log/slog"
 	"os"
 )
 
@@ -21,7 +21,7 @@ type Config struct {
 	RedisPort             int    `toml:"redisPort"`
 }
 
-func ProcessConfig() *Config {
+func ProcessConfig(logger *log/slog.Logger) *Config {
 	setConfig := Config{
 		ListenPort:            8080,
 		SqsMinimumMessageSize: 1,
@@ -34,28 +34,35 @@ func ProcessConfig() *Config {
 		RedisHost:             "localhost",
 		RedisPort:             6379,
 	}
-	b, err := os.ReadFile("../efficient_sqs_config.toml")
+	b, err := os.ReadFile("../efficient_sqs_config.toml") // TODO allow this to be elsewhere
 	if err != nil {
-		log.Fatalf("Failed to read efficient_sqs_config.toml: %v", err)
+		logger.Error("Failed to read efficient_sqs_config.toml", "error", err)
+		os.Exit(1)
 	}
 	err = toml.Unmarshal(b, &setConfig)
 	if err != nil {
-		log.Fatalf("Failed to unmarshal config.toml: %v", err)
+		logger.Error("Failed to unmarshal config.toml", "error", err)
+		os.Exit(1)
 	}
 	if setConfig.Compression != "gzip" && setConfig.Compression != "none" {
-		log.Fatalf("config.toml: compression must be 'gzip' or 'none'.")
+		logger.Error("config.toml: compression must be 'gzip' or 'none'.")
+		os.Exit(1)
 	}
 	if setConfig.PollingMs < 50 || setConfig.PollingMs > 10000 {
-		log.Fatalf("config: pollingMs must be greater than 50 and less than 10000.")
+		logger.Error("config: pollingMs must be greater than 50 and less than 10000.")
+		os.Exit(1)
 	}
 	if setConfig.Mode != "debug" && setConfig.Mode != "release" {
-		log.Fatalf("config: mode must be 'debug' or 'release'.")
+		logger.Error("config: mode must be 'debug' or 'release'.")
+		os.Exit(1)
 	}
 	if setConfig.SqsQueueName == "" {
-		log.Fatalf("config: sqsQueueName must be set.")
+		logger.Error("config: sqsQueueName must be set.")
+		os.Exit(1)
 	}
 	if setConfig.SeparatingCharacters == "" {
-		log.Fatalf("config: separatingCharacters must be set.")
+		logger.Error("config: separatingCharacters must be set.")
+		os.Exit(1)
 	}
 	return &setConfig
 }

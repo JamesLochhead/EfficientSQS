@@ -7,14 +7,16 @@ import (
 	"github.com/JamesLochhead/EfficientSQS/src/common"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"log"
+	"log/slog"
+	"os"
 	"strconv"
 	"strings"
 )
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	ctx := context.Background()
-	setConfig := common.ProcessConfig()
+	setConfig := common.ProcessConfig(logger)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379", // TODO support not using localhost and a different port
 		Password: "",               // TODO support password? maybe? secrets manager?
@@ -28,25 +30,25 @@ func main() {
 	router.POST("/sqs", func(c *gin.Context) { // TODO pattern
 		data, err := c.GetRawData()
 		if err != nil {
-			log.Println("Failed to get message JSON:", err) // TODO send non-200
+			logger.Error("Failed to get message JSON", "error", err) // TODO send non-200
 		}
 		if setConfig.Compression == "gzip" {
 			var buffer bytes.Buffer
 			gz := gzip.NewWriter(&buffer)
 			if _, err := gz.Write([]byte(data)); err != nil {
-				log.Println("Failed to write to buffer", err)
+				logger.Error("Failed to write to buffer", "error", err)
 			}
 			if err := gz.Close(); err != nil {
-				log.Println("Failed to close buffer:", err)
+				logger.Error("Failed to close buffer", "error", err)
 			}
 			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, buffer.Bytes()).Result()
 			if err != nil {
-				log.Println("Failed to store message:", err) // TODO send non-200
+				logger.Error("Failed to store message", "error", err) // TODO send non-200
 			}
 		} else {
 			_, err = rdb.LPush(ctx, setConfig.RedisQueueName, data).Result()
 			if err != nil {
-				log.Println("Failed to store message:", err) // TODO send non-200
+				logger.Error("Failed to store message", "error", err) // TODO send non-200
 			}
 		}
 		// TODO if message is too large send appropriate rejection
@@ -54,6 +56,7 @@ func main() {
 		// TODO search message for separating characters and reject
 	})
 	if err := router.Run(strings.Join([]string{":", strconv.Itoa(setConfig.ListenPort)}, "")); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+		logger.Error("Failed to run server", "error", err)
+		os.Exit(1)
 	}
 }
