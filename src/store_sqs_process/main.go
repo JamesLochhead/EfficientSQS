@@ -8,19 +8,21 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/redis/go-redis/v9"
-	"log"
+	"log/slog"
+	"os"
 	"sync"
 )
 
 // checkSqsExists checks whether an SQS queue with the given name exists by
 // requesting its URL; it logs a fatal error and exits on failure, and returns
 // true if the queue is found.
-func checkSqsExists(sqsClient *sqs.Client, ctx context.Context, queueName string) bool {
+func checkSqsExists(sqsClient *sqs.Client, ctx context.Context, queueName string, logger *slog.Logger) bool {
 	_, err := sqsClient.GetQueueUrl(ctx, &sqs.GetQueueUrlInput{
 		QueueName: &queueName,
 	})
 	if err != nil {
-		log.Fatalf("Couldn't get queue URL for %v. Here's why: %v\n", queueName, err)
+		logger.Error("Couldn't get queue URL", "error", err)
+		os.Exit(1)
 	}
 	return err == nil
 }
@@ -107,6 +109,7 @@ func worker(id int) {
 
 func main() {
 	// TODO on Sigterm drain Redis
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379", // TODO support not using localhost and a different port
@@ -114,16 +117,17 @@ func main() {
 		DB:       0,
 		Protocol: 2,
 	})
-	setConfig := common.ProcessConfig()
+	setConfig := common.ProcessConfig(logger)
 	sdkConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		log.Fatalf("Failed to setup AWS client: %v", err)
+		logger.Error("Failed to setup AWS client", "error", err)
+		os.Exit(1)
 	}
 	sqsClient := sqs.NewFromConfig(sdkConfig)
-	checkSqsExists(sqsClient, ctx, setConfig.SqsQueueName)
+	checkSqsExists(sqsClient, ctx, setConfig.SqsQueueName, logger)
 	bins, err := packBins(ctx, rdb, setConfig)
 	if err != nil {
-		log.Println("Failed to pop from Redis:", err)
+		logger.Error("Failed to pop from Redis", "error", err)
 	}
 	chunks := chunkBins(bins)
 	var wg sync.WaitGroup
