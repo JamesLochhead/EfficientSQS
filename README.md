@@ -118,6 +118,13 @@ Here's a minimal IAM policy document:
 
 ## Usage
 
+`cd` to `intermdiate_q_process` and `store_sqs_process`. Run a `go build`. I'm
+not releasing binaries yet. Run each process separately. Run a Redis process
+on port `6379`. There is an insecure dev example container in `dev` and `make`
+targets. In production, I recommend protected mode for Redis and NOT exposing
+Redis outside of localhost/the pod/task. You could also add a password in the
+config file and Go source code, should you wish.
+
 `POST` to the `/efficient-sqs` endpoint.
 
 Example:
