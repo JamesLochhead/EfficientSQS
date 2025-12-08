@@ -32,6 +32,9 @@ messages; your code must be able to deal with this.
 The application can be configured by a single `efficient_sqs_config.toml` that
 is used by both processes. All keys are top-level.
 
+The configuration file can be located in the same directory as the binaries,
+the directories above, or at `/etc/efficient/sqs/`.
+
 ```
 port
 ```
