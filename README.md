@@ -116,6 +116,19 @@ Here's a minimal IAM policy document:
 }
 ```
 
+## Usage
+
+`POST` to the `/efficient-sqs` endpoint.
+
+Example:
+
+```bash
+	curl \
+		-X POST "http://localhost:8081/efficient-sqs" \
+		-H "Content-Type: application/x-www-form-urlencoded" \
+		-d "This will be batched and bin packed"
+```
+
 ## Benefits
 
 Outside of the free tier, every SQS request has a cost. An SQS message can be
