@@ -21,6 +21,22 @@ type Config struct {
 	RedisPort             int    `toml:"redisPort"`
 }
 
+func findConfigFile() (string, error) {
+	configPaths := []string{
+		"./efficient_sqs_config.toml",
+		"../efficient_sqs_config.toml",
+		"/etc/efficient_sqs/efficient_sqs_config.toml",
+	}
+
+	for _, path := range configPaths {
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+
+	return "", os.ErrNotExist
+}
+
 func ProcessConfig(logger *slog.Logger) *Config {
 	setConfig := Config{
 		ListenPort:            8080,
@@ -34,9 +50,20 @@ func ProcessConfig(logger *slog.Logger) *Config {
 		RedisHost:             "localhost",
 		RedisPort:             6379,
 	}
-	b, err := os.ReadFile("../efficient_sqs_config.toml") // TODO allow this to be elsewhere
+	configPath, err := findConfigFile()
 	if err != nil {
-		logger.Error("Failed to read efficient_sqs_config.toml", "error", err)
+		logger.Error(
+			"Failed to find efficient_sqs_config.toml in current dir, "+
+				"parent dir, or /etc/efficient_sqs/",
+			"error", err)
+		os.Exit(1)
+	}
+	b, err := os.ReadFile(configPath)
+	if err != nil {
+		logger.Error(
+			"Failed to read efficient_sqs_config.toml",
+			"error", err,
+			"path", configPath)
 		os.Exit(1)
 	}
 	err = toml.Unmarshal(b, &setConfig)
