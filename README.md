@@ -1,7 +1,3 @@
-```
-NOTE: This is a WIP project that is not yet released.
-```
-
 # Efficient SQS
 
 A Go service to batch and bin-pack messages in-memory and then send them to
