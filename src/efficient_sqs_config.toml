@@ -1,5 +1,5 @@
 port = 8081
-pollingMs = 10000
+pollingMs = 1000
 sqsMinimumMessageSize = 1
 sqsMaximumMessageSize = 1048576
 routePattern = "/efficient-sqs"
