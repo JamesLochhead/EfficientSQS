@@ -82,21 +82,32 @@ func packBins(
 	}
 }
 
-// chunkBins splits the input bins into chunks of up to 10 bins each.
-func chunkBins(bins map[int]string) []map[int]string {
+// chunkBins splits the input bins into chunks respecting both:
+// - Max 10 messages per batch (SQS limit)
+// - Max total batch size (configured SQS maximum)
+func chunkBins(bins map[int]string, maxBatchSize int) []map[int]string {
+	const maxMessagesPerBatch = 10
+
 	var chunks []map[int]string
 	current := make(map[int]string)
+	currentSize := 0
 	count := 0
 
 	for k, v := range bins {
-		current[k] = v
-		count++
+		messageSize := len(v)
 
-		if count == 10 {
+		// Check if adding this message would exceed limits
+		if count > 0 && (count >= maxMessagesPerBatch || currentSize+messageSize > maxBatchSize) {
+			// Finalize current chunk
 			chunks = append(chunks, current)
 			current = make(map[int]string)
+			currentSize = 0
 			count = 0
 		}
+
+		current[k] = v
+		currentSize += messageSize
+		count++
 	}
 
 	// Final partial chunk
@@ -171,7 +182,7 @@ func main() {
 		if err != nil {
 			logger.Error("Failed to pop from Redis", "error", err)
 		}
-		chunks := chunkBins(bins)
+		chunks := chunkBins(bins, setConfig.SqsMaximumMessageSize)
 
 		var wg sync.WaitGroup
 		for _, batch := range chunks {
