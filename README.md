@@ -136,6 +136,19 @@ Example:
 		-d "This will be batched and bin packed"
 ```
 
+## Data loss
+
+Architecturally, I have made the decision that once items are popped from the
+Redis queue, they are not put back even if sending to SQS fails.
+
+You should therefore assume a certain small amount of data loss for issues in
+delivery (ex: network issues).
+
+You should not use this project for very critical messages (and you might prefer
+to do that synchronously) and you shouldn't assume that the message has been
+delivered - rather write a function that a client can use to poll to check
+whether the change has been written.
+
 ## Benefits
 
 Outside of the free tier, every SQS request has a cost. An SQS message can be
